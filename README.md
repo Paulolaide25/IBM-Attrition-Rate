@@ -24,8 +24,23 @@ Machine learning comparison for predicting employee attrition on the IBM HR Anal
 
 The grid search selected `n_estimators=200`, `max_depth=20`, `max_features='sqrt'`, `min_samples_split=2` and `min_samples_leaf=1`.
 
+## Improved models: class weighting and ROC-AUC
+A second section of the notebook retrains the models with a **stratified split**, **class weights** and a scaled logistic regression, and judges them on leaver recall and ROC-AUC. Always predicting "stays" would be 84.0% accurate on this test set while finding no leavers.
+
+| Model | Accuracy | Leaver precision | Leaver recall | Leaver F1 | ROC-AUC |
+|---|---|---|---|---|---|
+| Logistic Regression (baseline) | 0.857 | 0.609 | 0.298 | 0.400 | 0.761 |
+| Logistic Regression (balanced, scaled) | 0.755 | 0.346 | 0.596 | 0.438 | 0.793 |
+| Random Forest (baseline) | 0.850 | 0.800 | 0.085 | 0.154 | 0.778 |
+| Random Forest (balanced) | 0.854 | 0.625 | 0.213 | 0.317 | 0.795 |
+| Decision Tree (balanced, depth 5) | 0.786 | 0.352 | 0.404 | 0.376 | 0.597 |
+
+In 5-fold cross-validation the balanced, scaled Logistic Regression had the best ROC-AUC (0.826, against 0.805 for the balanced Random Forest and 0.789 for the baseline Logistic Regression). Class weighting roughly doubles how many leavers the logistic model finds (recall 0.30 to 0.60), but accuracy falls from 0.86 to 0.76 and more warnings are false alarms. Which trade-off is right depends on the cost of losing an employee against the cost of a wasted retention conversation.
+
+![ROC curves](images/roc-curves.png)
+
 ## Next steps
-Address class imbalance (SMOTE or class weights), tune the decision threshold, and report ROC-AUC.
+Tune the decision threshold to a chosen recall target, try gradient boosting, and add a cost-based comparison.
 
 ## Tools
 Python, pandas, NumPy, scikit-learn, matplotlib, seaborn.
@@ -41,4 +56,4 @@ Python, pandas, NumPy, scikit-learn, matplotlib, seaborn.
 pip install pandas numpy scikit-learn matplotlib seaborn openpyxl jupyter
 jupyter notebook IBM_ATTRITION_DATA_3_MLA.ipynb
 ```
-The notebook was written in Google Colab and reads the data from Google Drive. To run it locally, change the `read_excel` path to `IBM Employee Attrition.xlsx` and remove the Drive mount cell.
+The notebook reads `IBM Employee Attrition.xlsx` from this folder, so it runs locally or in Colab as it is.
